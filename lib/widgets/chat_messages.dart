@@ -18,11 +18,10 @@ class _ChatMessagesState extends State<ChatMessages> {
           .collection('chat')
           .orderBy(
             'createdAt',
-            descending: false,
+            descending: true,
           ) //order the data based on created time
           .snapshots(), //whenever chat db in firestore gets updated
       builder: (context, snapshot) {
-        final loadedData = snapshot.data!.docs;
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator(strokeWidth: 2));
         }
@@ -37,7 +36,9 @@ class _ChatMessagesState extends State<ChatMessages> {
         if (snapshot.hasError) {
           return Center(child: Text("Something went wrong!!!"));
         }
+        final loadedData = snapshot.data!.docs;
         return ListView.builder(
+          reverse: true, //to  show items in the bottom instead of top
           itemCount: loadedData.length,
           itemBuilder: (cxt, index) {
             return Padding(
@@ -48,7 +49,5 @@ class _ChatMessagesState extends State<ChatMessages> {
         );
       },
     );
-
-    // return Center(child: Text("No data"));
   }
 }

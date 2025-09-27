@@ -66,7 +66,7 @@ class _NewMessagesState extends State<NewMessages> {
             child: TextField(
               controller: messageController,
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(label: Text("Enter chat message")),
+              decoration: InputDecoration(label: Text("Send a message")),
             ),
           ),
           IconButton(
