@@ -1,6 +1,6 @@
+import 'package:chtapp/widgets/chat_bubles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessages extends StatefulWidget {
@@ -13,6 +13,9 @@ class ChatMessages extends StatefulWidget {
 class _ChatMessagesState extends State<ChatMessages> {
   @override
   Widget build(BuildContext context) {
+    //cureent user
+    final authenticatedUser = FirebaseAuth.instance.currentUser!;
+
     return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('chat')
@@ -39,12 +42,33 @@ class _ChatMessagesState extends State<ChatMessages> {
         final loadedData = snapshot.data!.docs;
         return ListView.builder(
           reverse: true, //to  show items in the bottom instead of top
+          padding: EdgeInsets.only(bottom: 40, left: 13, right: 12),
           itemCount: loadedData.length,
           itemBuilder: (cxt, index) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(loadedData[index].data()['text']),
-            );
+            final chatmsgDetails = loadedData[index].data();
+            final nextChatmsg = index + 1 < loadedData.length
+                ? loadedData[index + 1].data()
+                : null;
+            final currentMsgUid = chatmsgDetails['userId'];
+            final nextMsgUid = nextChatmsg != null
+                ? nextChatmsg['userid']
+                : null;
+
+            final isNextmsgUserSame = nextMsgUid == currentMsgUid;
+
+            if (isNextmsgUserSame) {
+              return MessageBubble.next(
+                message: chatmsgDetails['text'],
+                isMe: authenticatedUser.uid == currentMsgUid,
+              );
+            } else {
+              return MessageBubble.first(
+                userImage: chatmsgDetails['userImage'],
+                username: chatmsgDetails['userName'],
+                message: chatmsgDetails['text'],
+                isMe: authenticatedUser.uid == currentMsgUid,
+              );
+            }
           },
         );
       },
